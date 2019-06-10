@@ -5,6 +5,7 @@
     $email = "";
     $emailError = "";
     $passwordError = "";
+	$counter = 1;
     if(isset($_POST["login"])){
         if (isset($_POST["email"]) and !empty($_POST["email"])){
         $email = test_input($_POST["email"]);

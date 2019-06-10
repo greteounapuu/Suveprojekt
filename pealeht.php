@@ -1,3 +1,27 @@
+<?php
+  require("functions.php");
+  //Kui pole sisse loginud
+
+
+  //kui pole sisselogitud
+  if(!isset($_SESSION["userId"])){
+	header("Location:avaleht.php");
+	exit();
+  }
+
+
+  //Väljalogimine
+  if(isset($_GET["logout"])){
+	session_destroy();
+	header("Location:avaleht.php");
+	exit();
+  }
+  $mybgcolor = "#FFFFFF";
+  $mytxtcolor = "#000000";
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,14 +34,16 @@
 </head>
 <body>
   <div id="mySidenav" class="sidenav">
-  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-  <button id="clockButton" style="font-family: 'digital-clock-font'; cursor:pointer" class="nupp">Upload file</button>
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <h1 id="sidenavMenu">Menüü</h1>
+      <a style="font-family: 'digital-clock-font'; cursor:pointer" href="upload.php">Upload</a>
   <br>
   <br>
-  <button id="text" style="font-family: 'digital-clock-font';cursor:pointer" class="nupp2">view files</button>
+  <a id="text" style="font-family: 'digital-clock-font';cursor:pointer" class="nupp2">View files</a>
   <br>
   <br>
+  <a href="?logout=1">Logout</a>
   </div>
-  <span style="font-size:20px; color:white;cursor:pointer" onclick="openNav()">&#9776; Lisavalikud</span>
+  <span style="font-size:20px; color:black;cursor:pointer" onclick="openNav()">&#9776; Lisavalikud</span>
 </body>
 </html>

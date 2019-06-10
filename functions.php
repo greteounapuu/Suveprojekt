@@ -10,33 +10,53 @@ function signin($email, $password){
 	$stmt->bind_param("s", $email);
 	$stmt->bind_result($idFromDb, $emailFromDb, $passwordFromDb);
 	if($stmt->execute()){
+
 		//Kui päring õnnestus
 	  if($stmt->fetch()){
-		  //kasutaja on olemas
+		  $stmt -> close();
+
+		 //kasutaja on olemas
+		$stmt= $mysqli->prepare ("UPDATE kasutajad SET counter= counter + 1 WHERE id=$idFromDb");
+		$stmt ->execute();
+
+
+
 		  if(password_verify($password,$passwordFromDb)){
+
 			//Kui salasõna klapib
+
 			$notice = "Logisite sisse";
 			//Määran sessiooni muutujad
+
 			$_SESSION["userId"] = $idFromDb;
 			$_SESSION["userEmail"] = $emailFromDb;
+			$_SESSION["userCounter"] = $counterFromDb;
+
 			//liigume kohe vaid sisselogitudele mõeldud pealehele
-			$stmt->close();
-			$mysqli->close();
+			//$stmt->close();
+			//$mysqli->close();
+
 			header("Location: pealeht.php");
+
 			exit();
+
 		  } else {
 		    $notice = "Vale salasõna";
 		  }
+
+
 	  } else {
 	    $notice = "Sellist kasutajat(" .$email .") ei leitud";
 	  }
 	} else {
 	  $notice = "Sisenemisel tekkis viga" .$stmt->error;
 	}
+
 	$stmt->close();
 	$mysqli->close();
 	return $notice;
   }//sisselogimine lõppeb
+
 function signup($firstName, $lastName, $email, $password){
 	$notice = "";
 	$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
@@ -50,7 +70,7 @@ function signup($firstName, $lastName, $email, $password){
 		$notice = "Sellise kasutajatunnusega (" .$email .") kasutaja on juba olemas! Uut kasutajat ei salvestatud!";
 	} else {
 		$stmt->close();
-		$stmt = $mysqli->prepare("INSERT INTO kasutajad (firstname, lastname, email, password) VALUES(?,?,?,?)");
+		$stmt = $mysqli->prepare("INSERT INTO kasutajad (firstname, lastname, email, counter, password) VALUES(?,?,?,1, ?)");
     	echo $mysqli->error;
 	    $options = ["cost" => 12, "salt" => substr(sha1(rand()), 0, 22)];
 	    $pwdhash = password_hash($password, PASSWORD_BCRYPT, $options);
@@ -60,11 +80,32 @@ function signup($firstName, $lastName, $email, $password){
 	    } else {
 	      $notice = "error" .$stmt->error;
 	    }
+
 	}
-	$stmt->close();
-	$mysqli->close();
+
 	return $notice;
+	$stmt ->close();
+	$mysqli->close();
   }
+
+	function upload($description, $dateFrom, $dateTo){
+		$id = $_SESSION["userId"];
+		$notice = "";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("INSERT INTO failid (failinimi, algus, lopp, kasutaja_id) VALUES(?,?,?,?)");
+			echo $mysqli->error;
+			$stmt->bind_param("sssi", $description, $dateFrom, $dateTo, $_SESSION["userId"]);
+			$stmt->execute();
+			echo $stmt->error;
+			$stmt ->close();
+			$stmt = $mysqli->prepare("SELECT * FROM failid WHERE kasutaja_id = $id");
+			$stmt -> execute();
+
+	return $notice;
+	$stmt ->close();
+	$mysqli->close();
+	}
+
 function test_input($data) {
 	//echo "Koristan!\n";
 	$data = trim($data);
